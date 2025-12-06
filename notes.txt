@@ -14,3 +14,30 @@
             file.mimetype: File type (image/jpeg, application/pdf, etc.)
             file.fieldname: The name from your form's input field
 -we do filter too we can restrict user from uploading every file types
+- then we create an instance like below
+                                    *** const upload =  multer({
+                                        storage:storage,
+                                        fileFilter:fileFilter,
+                                        limits:{
+                                            fileSize:1024*1024*5 //5MB  
+                                        }
+                                        }) ***
+-upload.single()
+                 - Accept only ONE file
+                 - The file input field name must be 'profilePic'
+-After multer processes the upload:
+            - req.file contains the uploaded file info
+            - req.body contains other form fields
+
+-  req.file contains:
+   {
+     fieldname: 'profilePic',
+     originalname: 'my-photo.jpg',
+     encoding: '7bit',
+     mimetype: 'image/jpeg',
+     destination: './uploads',
+     filename: 'my-photo-1638472847362.jpg',
+     path: 'uploads/my-photo-1638472847362.jpg',
+     size: 245234 (in bytes)
+   }
+   

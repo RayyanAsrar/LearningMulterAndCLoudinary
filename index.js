@@ -22,36 +22,56 @@ const storage = multer.diskStorage({
         }
         cb(null, uploadDir);
     },
-    filename:function (req, file, cb) {
-        const ext=path.extname(file.originalname);
-        const filenamewithoutExt=path.basename(file.originalname,ext);
-        const uniquename=`${filenamewithoutExt}-${Date.now()}${ext}`;
-        console.log("saving file as:",uniquename);
-        
-        cb(null,uniquename);
+    filename: function (req, file, cb) {
+        const ext = path.extname(file.originalname);
+        const filenamewithoutExt = path.basename(file.originalname, ext);
+        const uniquename = `${filenamewithoutExt}-${Date.now()}${ext}`;
+        console.log("saving file as:", uniquename);
+
+        cb(null, uniquename);
 
     }
 })
 
 //filteration 
-const fileFilter=(req,file,cb)=>{
+const fileFilter = (req, file, cb) => {
     console.log('File received:', {
-    originalname: file.originalname,
-    mimetype: file.mimetype,
-    fieldname: file.fieldname
-  });
-  const allowedTypes=['image/jpeg','image/jpg','image/png','image/gif'];
-  if(allowedTypes.includes(file.mimetype)){
-    cb(null,true);
-  }else{
-    cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'),false);
-  }
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        fieldname: file.fieldname
+    });
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'), false);
+    }
 }
 //multer instance
-const upload =  multer({
-    storage:storage,
-    fileFilter:fileFilter,
-    limits:{
-        fileSize:1024*1024*5 //5MB  
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 1024 * 1024 * 5 //5MB  
     }
 })
+//making upload endpoints
+app.post('/upload-single', upload.single('myfile'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
+    console.log("uploaded file", req.file)
+    console.log("other form data", req.body)
+
+    res.json({
+        success: true,
+        message: 'File uploaded successfully',
+        file: {
+            originalName: req.file.originalname,
+            savedAs: req.file.filename,
+            size: `${(req.file.size / 1024).toFixed(2)} KB`,
+            path: req.file.path
+        },
+        otherData: req.body
+    });
+});
