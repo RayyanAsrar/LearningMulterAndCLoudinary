@@ -47,3 +47,4 @@ const fileFilter=(req,file,cb)=>{
     cb(new Error('Invalid file type. Only JPEG, PNG and GIF are allowed.'),false);
   }
 }
+//multer instance

@@ -13,3 +13,4 @@
             file.originalname: Original name from user's computer
             file.mimetype: File type (image/jpeg, application/pdf, etc.)
             file.fieldname: The name from your form's input field
+-we do filter too we can restrict user from uploading every file types
