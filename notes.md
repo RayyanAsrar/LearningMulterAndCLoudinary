@@ -1,0 +1,15 @@
+*What is multer?
+-multer handles file upload in express
+-Multer is middleware that processes multipart/form-data - the format browsers use to send files.
+-we cannot handle files in req.body as it can only handle text
+-u need to install multer (npm install multer)
+-multer.diskStorage({}) , expects 2 things 
+    1-destination 
+        - WHERE to save the file
+        -function (req, file, cb) {}
+    2-filename
+        -WHAT to name the file
+        - file object contains:
+            file.originalname: Original name from user's computer
+            file.mimetype: File type (image/jpeg, application/pdf, etc.)
+            file.fieldname: The name from your form's input field
