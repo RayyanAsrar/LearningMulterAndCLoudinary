@@ -1,4 +1,5 @@
 // in this file we will practice multer 
+//if u want to run this file change main from package.json to multer.js
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -35,7 +36,7 @@ const storage = multer.diskStorage({
 
 //filteration 
 const fileFilter = (req, file, cb) => {
-    console.log('File received:', {
+    console.log('File received:','line 39', {
         originalname: file.originalname,
         mimetype: file.mimetype,
         fieldname: file.fieldname
@@ -56,6 +57,7 @@ const upload = multer({
     }
 })
 //making upload endpoints
+//single file upload
 app.post('/upload-single', upload.single('myfile'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
@@ -75,3 +77,52 @@ app.post('/upload-single', upload.single('myfile'), (req, res) => {
         otherData: req.body
     });
 });
+//multiple file upload
+app.post('/upload-multiple', upload.array("myfiles", 3), (req, res) => {
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ message: 'No files uploaded' });
+    }
+    console.log(`uploaded ${req.files.length} files`);
+    const fileInfos = req.files.map(file => ({
+        originalName: file.originalname,
+        savedAs: file.filename,
+        size: `${(file.size / 1024).toFixed(2)} KB`,
+    }));
+    res.json({
+        success: true,
+        message: `${req.files.length} files uploaded successfully`,
+        files: fileInfos
+    })
+})
+//multiple file fields upload
+app.post("/upload-multiple-fields",upload.fields([
+    {name:"profilepic",maxCount:1},
+    {name:"gallery",maxCount:5},
+    {name:"documents",maxCount:3}
+]), (req,res)=>{
+    if(!req.files){
+        return res.status(400).json({message:"No files uploaded"});
+    }
+    // log('Uploaded files:', req.files);
+    // console.log('Files by field:', Object.keys(req.files));
+    // res.send(req.files)
+    // res.json(Object.entries(req.files));
+      const response = {
+      success: true,
+      uploadedFiles: {}
+    };
+    for (const [fieldName, files] of Object.entries(req.files)) {
+      response.uploadedFiles[fieldName] = files.map(file => ({
+        originalName: file.originalname,
+        savedAs: file.filename
+      }));
+    }
+    
+    res.json(response);
+  
+});
+
+
+app.listen(PORT, () => {
+    console.log(`server is running on port ${PORT}`);
+})

@@ -1,17 +1,20 @@
 {
   "name": "learningmulterandcloudinary",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "cloudinary.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon cloudinary.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cloudinary": "^2.8.0",
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^2.2.1"
   }
 }

@@ -41,3 +41,19 @@
      size: 245234 (in bytes)
    }
    
+-app.post('/upload/multiple', upload.array('photos', 5), (req, res) => {
+    -upload.array('photos', 5) means:
+   - Accept multiple files
+   - All from input field named 'photos'
+   - Maximum 5 files
+   -req.files (plural!) contains array of file objects  
+
+-app.post('/upload/fields',upload.fields([{ name: 'profilePic', maxCount: 1 },{ name: 'coverPhoto', maxCount: 1 },{ name: 'documents', maxCount: 3 }]), (req, res) => {
+    upload.fields() accepts multiple different fields
+     Each field can have its own maxCount
+     req.files is now an OBJECT (not array)
+     {
+       profilePic: [file1],
+       coverPhoto: [file1],
+       documents: [file1, file2, file3]
+     }
