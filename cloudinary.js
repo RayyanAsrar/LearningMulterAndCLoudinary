@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from "fs/promises"
-import { log } from 'console';
+
 
 dotenv.config();
 
@@ -55,7 +55,7 @@ const profileStorage = multer.diskStorage({
 })
 //seperate folder for documents 
 const documentStorage = multer.diskStorage({
-    destination: (req, file, cd) => {
+    destination: (req, file, cb) => {
         cb(null, 'uploads/documents/')
 
     },
@@ -190,41 +190,54 @@ app.post('/api/upload/image', upload.single('image'), async (req, res) => {
     }
 })
 //route for profile image upload
-app.post('/api/upload/profile',profileUpload.single('avatar'),async(req,res)=>{
-    try{
-        const {username , userId}=req.body 
-        if(!req.file||!username||!userId){
-            return res.status(400).json({error:'Missing required fields'});
+app.post('/api/upload/profile', profileUpload.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'no profile image uploaded' });
         }
-        console.log("profile image file",req.file);
-        console.log("profile image file path",req.file.path);
-        const result = await uploadAndCleanup(req.file.path,{
-            folder:'user-profiles',
-            public_id:`profile_${userId}_${Date.now()}`,
-            transformation:[
-                {width:400,height:400,crop:'fill',gravity:'face'},
-                {quality:'auto'},
-                {fetch_format:'auto'}
+        const { username, userId } = req.body
+        if (!username || !userId) {
+            console.log('required fields are missing');
+
+        }
+
+
+        console.log("profile image file", req.file);
+        console.log("profile image file path", req.file.path);
+        const result = await uploadAndCleanup(req.file.path, {
+            folder: 'user-profiles',
+            public_id: `profile_${Date.now()}`,
+            transformation: [
+                { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+                { quality: 'auto' },
+                { fetch_format: 'auto' }
             ],
-            overwrite:true
-        }) 
+            overwrite: true
+        })
         res.status(200).json({
-            message:'Profile image uploaded successfully',
-            user:{
-                username:username,
-                userId:userId,
-                avatat:{
-                    url:result.secure_url,
-                    publicId:result.public_id
+            message: 'Profile image uploaded successfully',
+            user: {
+                username: username,
+                userId: userId,
+                avatar: {
+                    url: result.secure_url,
+                    publicId: result.public_id
 
                 }
-            }
-            // data:result
-        });       
+            },  
+            data:result
+        });
     }
-    catch(error){
-
+    catch (error) {
+        if (req.file?.path) {
+            await deleteLocalFile(req.file.path);
         }
+        res.status(500).json({
+            error: 'Server error',
+            details: error.message || 'failed to upload profile image'
+        });
+
+    }
 })
 
 

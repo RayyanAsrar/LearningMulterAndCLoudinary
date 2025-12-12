@@ -64,3 +64,19 @@
 -then we create the multer instances 
 -after that we we will create some helper functions so we donot have to wrtie the repetative code 
         example: upload and cleanup , delete local files 
+- in file cloudinary.js at line 207-216 u will see this code 
+                const result = await uploadAndCleanup(req.file.path, {
+                            folder: 'user-profiles',
+                            public_id: `profile_${Date.now()}`,
+                            transformation: [
+                                { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+                                { quality: 'auto' },
+                                { fetch_format: 'auto' }
+                            ],
+                            overwrite: true
+                        })
+- in the first argument we will define the path and in the second we will define some of the options 
+    -like the folder
+    -public_id -> this key is ooptional if we dont pass this cloudinary will assign this a random key like "ab355nj"
+    so its better to always pass a meaningfull key so it is easy to find in future  
+    -next we pass a transformation key whoch defines the pic will be stored in storage
