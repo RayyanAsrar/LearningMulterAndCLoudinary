@@ -35,7 +35,7 @@
      originalname: 'my-photo.jpg',
      encoding: '7bit',
      mimetype: 'image/jpeg',
-     destination: './uploads',
+     destination: './uploads',  
      filename: 'my-photo-1638472847362.jpg',
      path: 'uploads/my-photo-1638472847362.jpg',
      size: 245234 (in bytes)
@@ -57,3 +57,10 @@
        coverPhoto: [file1],
        documents: [file1, file2, file3]
      }
+
+---------------------------------------
+-we use cloudinary to upload the files for cloud storage 
+- first we do the cloudinary config and then we do the multer disk storage setup 
+-then we create the multer instances 
+-after that we we will create some helper functions so we donot have to wrtie the repetative code 
+        example: upload and cleanup , delete local files 
