@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from "fs/promises"
+import { url } from 'inspector';
 
 
 dotenv.config();
@@ -130,7 +131,7 @@ const uploadAndCleanup = async (filePath, options) => {
     try {
         const result = await cloudinary.uploader.upload(filePath, options);
         await fs.unlink(filePath);
-        console.log("uploaded and cleaned up", filePath);
+        // console.log("uploaded and cleaned up", filePath);
         return result;
     } catch (error) {
         try {
@@ -202,8 +203,8 @@ app.post('/api/upload/profile', profileUpload.single('avatar'), async (req, res)
         }
 
 
-        console.log("profile image file", req.file);
-        console.log("profile image file path", req.file.path);
+        // console.log("profile image file", req.file);
+        // console.log("profile image file path", req.file.path);
         const result = await uploadAndCleanup(req.file.path, {
             folder: 'user-profiles',
             public_id: `profile_${Date.now()}`,
@@ -224,8 +225,8 @@ app.post('/api/upload/profile', profileUpload.single('avatar'), async (req, res)
                     publicId: result.public_id
 
                 }
-            },  
-            data:result
+            },
+            data: result
         });
     }
     catch (error) {
@@ -240,8 +241,53 @@ app.post('/api/upload/profile', profileUpload.single('avatar'), async (req, res)
     }
 })
 
+//multiple files  upload
+app.post('/api/upload/gallery', upload.array('photos', 10), async (req, res) => {
+    const uploadedFiles = [];
+    try {
+        // console.log(req.files);
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: "no files uploaded" });
+        }
 
+        for (const file of req.files) {
+            try {
+
+                const result = await uploadAndCleanup(file.path, {
+                    folder: 'user-galleries',
+                    transformation: [
+                        { width: 1920, height: 1200, crop: 'limit' },
+                        { quality: 'auto' },
+                        { fetch_format: 'auto' }]
+                })
+                uploadedFiles.push({
+                    url: result.secure_url,
+                    publicId: result.public_id,
+                    originalName: file.originalname,
+                    width: result.width,
+                    height: result.height,
+                    size: `${(result.bytes / 1024).toFixed(2)} KB`
+                });
+            } catch (error) {
+                console.log(`failed to upload${file.originalName}: ${error}`);
+
+            }
+        }
+        res.status(200).json({
+            message: `${uploadedFiles.length} files uploaded successfully`,
+            files: uploadedFiles
+        });
+    } catch (error) {
+        if (req.files) {
+            for (const file of req.files) {
+                await deleteLocalFile(file.path);
+            }
+        }
+        res.status(500).json({ error: "server error", details: error.message });
+    }
+
+})
 
 app.listen(PORT, () => {
     console.log('Server is running on port 3000');
-});
+}); 

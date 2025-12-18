@@ -80,3 +80,14 @@
     -public_id -> this key is ooptional if we dont pass this cloudinary will assign this a random key like "ab355nj"
     so its better to always pass a meaningfull key so it is easy to find in future  
     -next we pass a transformation key whoch defines the pic will be stored in storage
+-when sending multiple files (req.files) always return array
+                app.post('/api/upload/gallery',upload.array('photos',10),async(req,res)=>{
+                const uploadedFiles = [];
+                try {
+                    console.log(req.files);  ---> returns array
+
+                } catch (error) {
+                    res.status(500).json({error:"server error",details:error.message});
+                }
+            })
+            
